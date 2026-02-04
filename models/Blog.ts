@@ -1,9 +1,11 @@
- import mongoose, { Schema, Document } from 'mongoose';
+ // models/Blog.ts
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IBlog extends Document {
   title: string;
   description: string;
   image: string;
+  category: string;  // ⬅️ Add this
   publishedDate: string;
   createdAt: Date;
 }
@@ -20,6 +22,11 @@ const BlogSchema: Schema = new Schema({
   image: {
     type: String,
     required: true,
+  },
+  category: {  // ⬅️ Add this
+    type: String,
+    required: true,
+    default: 'General'
   },
   publishedDate: {
     type: String,

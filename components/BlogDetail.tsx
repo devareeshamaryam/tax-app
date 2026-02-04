@@ -3,7 +3,17 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { BlogPost } from '@/app/blog/blogData';
+
+// Interface directly defined (no import needed)
+interface BlogPost {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  category: string;
+  publishedDate: string;
+  createdAt?: Date;
+}
 
 interface BlogDetailProps {
   blog: BlogPost;
@@ -79,67 +89,15 @@ export default function BlogDetail({ blog, relatedBlogs }: BlogDetailProps) {
             alt={blog.title}
             fill
             className="object-cover"
-            unoptimized={blog.image.startsWith('http')}
+            unoptimized={blog.image.startsWith('http') || blog.image.startsWith('data:')}
             priority
           />
         </div>
 
-        {/* Introduction */}
+        {/* Introduction/Description */}
         <div className="prose prose-lg max-w-none mb-8">
           <p className="text-xl text-gray-700 leading-relaxed font-light">
             {blog.description}
-          </p>
-        </div>
-
-        {/* Main Content */}
-        <div className="prose prose-lg max-w-none">
-          <h2 className="text-3xl font-bold text-gray-900 mt-12 mb-6">Introduction</h2>
-          <p className="text-gray-700 leading-relaxed mb-6">
-            In today's digital landscape, staying ahead of the curve requires not just knowledge, but actionable insights that can transform your approach to web development and design. This comprehensive guide delves deep into the essential aspects that every modern developer and designer should understand.
-          </p>
-
-          <h2 className="text-3xl font-bold text-gray-900 mt-12 mb-6">Key Concepts to Master</h2>
-          
-          <h3 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">1. User-Centered Design Principles</h3>
-          <p className="text-gray-700 leading-relaxed mb-6">
-            At the heart of every successful digital product lies a deep understanding of user needs. User-centered design goes beyond aesthetics—it's about creating intuitive, accessible, and delightful experiences that solve real problems.
-          </p>
-
-          <h3 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">2. Performance Optimization</h3>
-          <p className="text-gray-700 leading-relaxed mb-6">
-            In an era where users expect instant gratification, performance is non-negotiable. From optimizing images and leveraging browser caching to implementing lazy loading and code splitting, every millisecond counts.
-          </p>
-
-          <div className="bg-green-50 border-l-4 border-green-500 p-6 my-8 rounded-r-lg">
-            <h4 className="text-xl font-bold text-gray-900 mb-3">💡 Pro Tip</h4>
-            <p className="text-gray-700 leading-relaxed">
-              Always start with mobile-first design principles. This approach ensures your core content and functionality work perfectly on smaller screens, then progressively enhance the experience for larger devices.
-            </p>
-          </div>
-
-          <h2 className="text-3xl font-bold text-gray-900 mt-12 mb-6">Best Practices</h2>
-          <ul className="space-y-4 my-8">
-            <li className="flex items-start">
-              <span className="text-green-500 mr-3 mt-1 text-xl">✓</span>
-              <span className="text-gray-700">Prioritize accessibility from the beginning—it's not an afterthought but a fundamental requirement</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-green-500 mr-3 mt-1 text-xl">✓</span>
-              <span className="text-gray-700">Implement progressive enhancement to ensure core functionality works everywhere</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-green-500 mr-3 mt-1 text-xl">✓</span>
-              <span className="text-gray-700">Use semantic HTML to improve SEO and assistive technology compatibility</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-green-500 mr-3 mt-1 text-xl">✓</span>
-              <span className="text-gray-700">Maintain consistent design patterns across your entire application</span>
-            </li>
-          </ul>
-
-          <h2 className="text-3xl font-bold text-gray-900 mt-12 mb-6">Conclusion</h2>
-          <p className="text-gray-700 leading-relaxed mb-6">
-            Success in web development and design comes from a combination of technical skills, creative thinking, and a genuine desire to create meaningful experiences for users. By mastering these concepts and staying curious about new developments in the field, you'll be well-equipped to tackle any challenge that comes your way.
           </p>
         </div>
 
@@ -207,7 +165,7 @@ export default function BlogDetail({ blog, relatedBlogs }: BlogDetailProps) {
                         alt={relatedBlog.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        unoptimized={relatedBlog.image.startsWith('http')}
+                        unoptimized={relatedBlog.image.startsWith('http') || relatedBlog.image.startsWith('data:')}
                       />
                     </div>
                     <div className="p-6">

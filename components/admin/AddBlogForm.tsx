@@ -10,16 +10,24 @@ export default function AddBlogForm() {
     title: '',
     description: '',
     image: '',
+    category: 'Technology', // ⬅️ Default category
     publishedDate: '',
   });
   
   const [imagePreview, setImagePreview] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
+  const categories = ['Technology', 'Design', 'Business', 'Marketing', 'General'];
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Create a preview URL for the selected image
+      // Check file size (max 5MB for better performance)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('⚠️ Image size should be less than 5MB');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -34,6 +42,8 @@ export default function AddBlogForm() {
     setLoading(true);
 
     try {
+      console.log('📤 Submitting blog data...');
+      
       const response = await fetch('/api/blogs', {
         method: 'POST',
         headers: {
@@ -43,6 +53,8 @@ export default function AddBlogForm() {
       });
 
       const data = await response.json();
+      
+      console.log('📥 Response:', data);
 
       if (data.success) {
         alert('✅ Blog added successfully!');
@@ -52,6 +64,7 @@ export default function AddBlogForm() {
           title: '',
           description: '',
           image: '',
+          category: 'Technology',
           publishedDate: '',
         });
         setImagePreview('');
@@ -60,11 +73,12 @@ export default function AddBlogForm() {
         router.push('/admin/blogs');
         router.refresh();
       } else {
-        alert('❌ Failed to add blog: ' + data.error);
+        alert('❌ Failed to add blog: ' + (data.error || 'Unknown error'));
+        console.error('Error details:', data);
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('❌ Something went wrong!');
+      console.error('❌ Error:', error);
+      alert('❌ Something went wrong! Check console for details.');
     } finally {
       setLoading(false);
     }
@@ -76,7 +90,7 @@ export default function AddBlogForm() {
         {/* Title */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Blog Title
+            Blog Title *
           </label>
           <input
             type="text"
@@ -89,10 +103,28 @@ export default function AddBlogForm() {
           />
         </div>
 
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Category *
+          </label>
+          <select
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            required
+            disabled={loading}
+          >
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+
         {/* Description */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Description
+            Description *
           </label>
           <textarea
             value={formData.description}
@@ -108,7 +140,7 @@ export default function AddBlogForm() {
         {/* Image Upload */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Blog Image
+            Blog Image * <span className="text-xs text-gray-500">(Max 5MB)</span>
           </label>
           
           {/* Image Preview Box */}
@@ -120,6 +152,7 @@ export default function AddBlogForm() {
                   alt="Preview"
                   fill
                   className="object-cover"
+                  unoptimized
                 />
                 <button
                   type="button"
@@ -167,7 +200,7 @@ export default function AddBlogForm() {
         {/* Published Date */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Published Date
+            Published Date *
           </label>
           <input
             type="date"

@@ -1,20 +1,54 @@
  // app/blog/[id]/page.tsx
 import Header from '@/components/Header';
 import BlogDetail from '@/components/BlogDetail';
-import { blogPosts } from '../blogData';
 import { notFound } from 'next/navigation';
 
-// Generate static params for all blog posts (for build optimization)
-export async function generateStaticParams() {
-  return blogPosts.map((post) => ({
-    id: post._id,
-  }));
+// Fetch single blog from API
+async function getBlog(id: string) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/blogs/${id}`,
+      { 
+        cache: 'no-store',
+        next: { revalidate: 0 }
+      }
+    );
+    
+    if (!res.ok) {
+      console.error('Failed to fetch blog:', res.status);
+      return null;
+    }
+    
+    const data = await res.json();
+    return data.data || null;
+  } catch (error) {
+    console.error('Error fetching blog:', error);
+    return null;
+  }
+}
+
+// Fetch all blogs for related section
+async function getAllBlogs() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/blogs`,
+      { cache: 'no-store' }
+    );
+    
+    if (!res.ok) return [];
+    
+    const data = await res.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Error fetching all blogs:', error);
+    return [];
+  }
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const blog = blogPosts.find(post => post._id === id);
+  const blog = await getBlog(id);
   
   if (!blog) {
     return {
@@ -36,21 +70,31 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 // Main Page Component
 export default async function BlogDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  // Await params first
   const { id } = await params;
   
-  // Find the blog post
-  const blog = blogPosts.find(post => post._id === id);
+  // Fetch current blog and all blogs in parallel
+  const [blog, allBlogs] = await Promise.all([
+    getBlog(id),
+    getAllBlogs()
+  ]);
   
   // If blog not found, show 404
   if (!blog) {
     notFound();
   }
 
-  // Get related blogs (exclude current blog, take first 3)
-  const relatedBlogs = blogPosts
-    .filter(post => post._id !== id)
+  // Get related blogs (same category, exclude current blog, take first 3)
+  const relatedBlogs = allBlogs
+    .filter(post => post._id !== id && post.category === blog.category)
     .slice(0, 3);
+  
+  // If not enough related blogs from same category, fill with other blogs
+  if (relatedBlogs.length < 3) {
+    const additionalBlogs = allBlogs
+      .filter(post => post._id !== id && !relatedBlogs.includes(post))
+      .slice(0, 3 - relatedBlogs.length);
+    relatedBlogs.push(...additionalBlogs);
+  }
 
   return (
     <main className="min-h-screen bg-white">

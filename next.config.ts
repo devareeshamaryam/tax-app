@@ -4,12 +4,23 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**', // All external images allowed
+        hostname: '**',
       },
     ],
-    // Ya specific domains:
-    // domains: ['images.unsplash.com', 'example.com'],
   },
+  
+  // Windows permission issues fix
+  experimental: {
+    isrMemoryCacheSize: 0,
+    // Turbopack config
+    turbo: {
+      resolveAlias: {},
+      rules: {},
+    },
+  },
+  
+  // Empty turbopack config to silence warning
+  turbopack: {},
 }
 
 module.exports = nextConfig
