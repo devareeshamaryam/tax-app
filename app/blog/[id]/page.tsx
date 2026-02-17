@@ -3,6 +3,15 @@ import Header from '@/components/Header';
 import BlogDetail from '@/components/BlogDetail';
 import { notFound } from 'next/navigation';
 
+interface BlogPost {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  category: string;
+  publishedDate: string;
+}
+
 // Fetch single blog from API
 async function getBlog(id: string) {
   try {
@@ -85,13 +94,13 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ id:
 
   // Get related blogs (same category, exclude current blog, take first 3)
   const relatedBlogs = allBlogs
-    .filter(post => post._id !== id && post.category === blog.category)
+    .filter((post: BlogPost) => post._id !== id && post.category === blog.category)
     .slice(0, 3);
   
   // If not enough related blogs from same category, fill with other blogs
   if (relatedBlogs.length < 3) {
     const additionalBlogs = allBlogs
-      .filter(post => post._id !== id && !relatedBlogs.includes(post))
+      .filter((post: BlogPost) => post._id !== id && post.category !== blog.category)
       .slice(0, 3 - relatedBlogs.length);
     relatedBlogs.push(...additionalBlogs);
   }
