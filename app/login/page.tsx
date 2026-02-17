@@ -10,16 +10,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // TEMPORARY TESTING CREDENTIALS (baad mein remove kar dena ya API route pe shift)
+  const TEST_ADMIN_USERNAME = 'admin';
+  const TEST_ADMIN_PASSWORD = 'AreeshaTax2026!pk';  // ya jo password test karna chahti ho
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
-    // Credentials from environment variables
-    const ADMIN_USERNAME = process.env.NEXT_PUBLIC_ADMIN_USERNAME;
-    const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    // Testing ke liye direct compare (bilkul simple)
+    if (username === TEST_ADMIN_USERNAME && password === TEST_ADMIN_PASSWORD) {
       localStorage.setItem('isAdminLoggedIn', 'true');
       localStorage.setItem('adminUser', JSON.stringify({
         username: username,
@@ -31,6 +32,8 @@ export default function LoginPage() {
       setError('Invalid username or password');
       setLoading(false);
     }
+
+    setLoading(false);  // loading false kar diya
   };
 
   return (
@@ -43,7 +46,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-800">Admin Login</h1>
-          <p className="text-gray-500 mt-1">Tax Calculator Dashboard</p>
+          <p className="text-gray-500 mt-1">Tax Calculator Dashboard (Testing Mode)</p>
         </div>
 
         {error && (
@@ -101,8 +104,8 @@ export default function LoginPage() {
             )}
           </button>
         </form>
-      </div>
+
+       </div>
     </div>
   );
 }
- 
